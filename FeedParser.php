@@ -125,13 +125,20 @@ class FeedParser
 
         $host = parse_url($url, PHP_URL_HOST);
 
-        return match (true) {
-            str_contains($host, 'bbc') => 'BBC',
-            str_contains($host, 'reuters') => 'Reuters',
-            str_contains($host, 'dw') => 'DW',
-            str_contains($host, 'cnn') => 'CNN',
-            default => $host,
-        };
+	 $map = [
+    		'bbc' => 'BBC',
+		'reuters' => 'Reuters',
+    		'dw' => 'DW',
+    		'cnn' => 'CNN',
+	];
+
+	foreach ($map as $needle => $name) {
+    		if (strpos($host, $needle) !== false) {
+        		return $name;
+    		}
+	}
+
+	return $host;
     }
 
     private static function cleanText($text)
