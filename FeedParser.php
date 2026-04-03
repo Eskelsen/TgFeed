@@ -120,25 +120,27 @@ class FeedParser
     private static function detectSource($url, $feedTitle = null)
     {
         if ($feedTitle) {
+            echo 'feedTitle: ' . $feedTitle . PHP_EOL;
             return trim($feedTitle);
         }
 
         $host = parse_url($url, PHP_URL_HOST);
 
-	 $map = [
-    		'bbc' => 'BBC',
-		'reuters' => 'Reuters',
-    		'dw' => 'DW',
-    		'cnn' => 'CNN',
-	];
+        $map = [
+            'bbc' => 'BBC',
+            'reuters' => 'Reuters',
+            'dw' => 'DW',
+            'cnn' => 'CNN'
+        ];
 
-	foreach ($map as $needle => $name) {
-    		if (strpos($host, $needle) !== false) {
-        		return $name;
-    		}
-	}
-
-	return $host;
+        foreach ($map as $needle => $name) {
+            if (strpos($host, $needle) !== false) {
+                echo 'name: ' . $name . PHP_EOL;
+                return $name;
+            }
+        }
+        echo 'host: ' . $host . PHP_EOL;
+	    return $host;
     }
 
     private static function cleanText($text)
