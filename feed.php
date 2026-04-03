@@ -1,14 +1,21 @@
 <?php
 
+define('FEED_LAPSE', 60);
+
+include __DIR__ . '/config.php';
 include __DIR__ . '/env.php';
 include __DIR__ . '/functions.php';
 
-$r = isset($argv[1]) ? $argv[1] : 0;
+$s = isset($argv[1]) ? $argv[1] : 0;
+
+$feed_lapse = isset($argv[2]) ? $argv[2] : FEED_LAPSE;
 
 $urls[1] = 'https://feeds.bbci.co.uk/news/world/rss.xml';
 $urls[2] = 'https://feeds.folha.uol.com.br/mundo/rss091.xml';
 
-$url = $urls[$r] ?? $urls[1];
+$url = $urls[$s] ?? $urls[1];
+
+echo 'Running source ' . $s . ' with a ' . $feed_lapse '-second time-lapse' . PHP_EOL; 
 
 $xmlString = file_get_contents($url);
 
@@ -55,7 +62,7 @@ foreach ($xml->channel->item as $item) {
 
     $when = date('Y-m-d H:i:s', strtotime($item->pubDate));
 
-    $lapse = time() - 60;
+    $lapse = time() - $feed_lapse;
 
     if (strtotime($item->pubDate) >= $lapse) {
         $msg = $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item->link;
