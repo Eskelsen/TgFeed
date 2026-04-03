@@ -15,7 +15,7 @@ $urls[2] = 'https://feeds.folha.uol.com.br/mundo/rss091.xml';
 
 $url = $urls[$s] ?? $urls[1];
 
-echo 'Running source ' . $s . ' with a ' . $feed_lapse '-second time-lapse' . PHP_EOL; 
+echo 'Running source ' . $s . ' with a ' . $feed_lapse . '-second time-lapse' . PHP_EOL; 
 
 $xmlString = file_get_contents($url);
 
