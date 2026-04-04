@@ -1,11 +1,16 @@
 <?php
 
-define('FEED_LAPSE', 60);
+if (empty($argv[1])) {
+    exit('Nothing to see here.' . PHP_EOL);
+}
+
+define('FEED_LAPSE', 60*60*6);
 
 include __DIR__ . '/env.php';
 include __DIR__ . '/config.php';
 include __DIR__ . '/functions.php';
 include __DIR__ . '/FeedParser.php';
+include __DIR__ . '/Json.php';
 
 $s = isset($argv[1]) ? $argv[1] : 0;
 
@@ -62,13 +67,17 @@ foreach ($feed as $item) {
 
     $totalMatches = count($coreMatches) + count($actionMatches);
 
-    if (count($coreMatches) < 1 || count($actionMatches) < 1 || $totalMatches < 2) {
+    $links = Json::read('links.json');
+
+    if (count($coreMatches) < 1 || count($actionMatches) < 1 || $totalMatches < 2 || in_array($item['link'],$links)) {
         continue;
     }
 
     $lapse = time() - $feed_lapse;
 
     if (strtotime($item['pubDate']) >= $lapse) {
+        $links[] =  (string) $item['link'];
+        Json::write('links.json',$links);
         $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
