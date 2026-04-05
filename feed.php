@@ -31,8 +31,6 @@ $log = 'Running source ' . $s . ' with a ' . $feed_lapse . '-second time-lapse';
 
 echo $log . PHP_EOL;
 
-file_put_contents(__DIR__ . '/log.txt', "\n" . $log . "\n", FILE_APPEND);
-
 $feed = FeedParser::parse($url);
 
 $coreKeywords = [
