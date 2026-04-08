@@ -24,7 +24,8 @@ function tgmSendMsg($chat_id, $msg, $tkn){
 	$url = TG_URLBASE . $tkn . '/sendMessage';
 	$data = [
 		'chat_id' => $chat_id,
-		'text' 	  => $msg
+		'text' 	  => $msg,
+		'parse_mode' => 'HTML'
 	];
 	$raw = dispatcher($url, $data, 'POST', true);
 	echo $raw . PHP_EOL;
