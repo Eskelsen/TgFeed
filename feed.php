@@ -13,10 +13,6 @@ include __DIR__ . '/FeedParser.php';
 include __DIR__ . '/Json.php';
 include __DIR__ . '/DeepL.php';
 
-echo DeepL::translate(DEEPL_KEY,'One more time') . PHP_EOL;
-
-return;
-
 $s = isset($argv[1]) ? $argv[1] : 0;
 
 $feed_lapse = isset($argv[2]) ? $argv[2] : FEED_LAPSE;
@@ -82,6 +78,8 @@ foreach ($feed as $item) {
     if (strtotime($item['pubDate']) >= $lapse) {
         $links[] =  (string) $item['link'];
         # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
+        $title = $s==2 ? $title : DeepL::translate(DEEPL_KEY,$title);
+        $title = appendFlagsFromCountries($title);
 	    $msg = str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
