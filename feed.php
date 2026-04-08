@@ -11,6 +11,11 @@ include __DIR__ . '/config.php';
 include __DIR__ . '/functions.php';
 include __DIR__ . '/FeedParser.php';
 include __DIR__ . '/Json.php';
+include __DIR__ . '/DeepL.php';
+
+echo DeepL::translate(DEEPL_KEY,'One more time') . PHP_EOL;
+
+return;
 
 $s = isset($argv[1]) ? $argv[1] : 0;
 
