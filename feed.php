@@ -4,6 +4,7 @@ if (empty($argv[1])) {
     exit('Nothing to see here.' . PHP_EOL);
 }
 
+define('WEB', __DIR__ . '/');
 define('FEED_LAPSE', 60*60*6);
 
 include __DIR__ . '/env.php';
@@ -54,7 +55,7 @@ $actionKeywords = [
 ];
 
 $items = [];
-$links = Json::read('links.json');
+$links = Json::read(WEB . 'links.json');
 
 foreach ($feed as $item) {
 
@@ -80,18 +81,18 @@ foreach ($feed as $item) {
         # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
         if ($s!=2) {
             if ($translate = DeepL::translate(DEEPL_KEY,$title)) {
-                $chars = Json::read('chars.json');
+                $chars = Json::read(WEB . 'chars.json');
                 $len = mb_strlen($title);
                 $chars['len'] = empty($chars['len']) ? $len : $len + $chars['len'];
-                Json::write('chars.json',$chars);
+                Json::write(WEB . 'chars.json',$chars);
                 $title = $translate;
             }
         }
         $flags = appendFlagsFromCountries($title);
 	    $msg = $flags . str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
-        file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
+        file_put_contents(WEB . 'log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }
 }
 
-Json::write('links.json',$links);
+Json::write(WEB . 'links.json',$links);
