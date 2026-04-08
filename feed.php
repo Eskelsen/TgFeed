@@ -29,6 +29,8 @@ $url = $urls[$s] ?? $urls[1];
 
 $log = 'Running source ' . $s . ' with a ' . $feed_lapse . '-second time-lapse';
 
+sleep($s);
+
 echo $log . PHP_EOL;
 
 $feed = FeedParser::parse($url);
@@ -75,7 +77,7 @@ foreach ($feed as $item) {
     if (strtotime($item['pubDate']) >= $lapse) {
         $links[] =  (string) $item['link'];
         # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
-	$msg = str_replace(':','-',$feedTitle) . ': ' . $title;
+	    $msg = str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }
