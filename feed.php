@@ -87,8 +87,8 @@ foreach ($feed as $item) {
                 $title = $translate;
             }
         }
-        $title = appendFlagsFromCountries($title);
-	    $msg = str_replace(':','-',$feedTitle) . ': ' . $title;
+        $flags = appendFlagsFromCountries($title);
+	    $msg = $flags . str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }

@@ -40,7 +40,7 @@ function countryCodeToFlag(string $code){
 function appendFlagsFromCountries(string $text){
     $countries = [
         'BR' => ['Brasil', 'Brazil'],
-        'US' => ['Estados Unidos', 'United States'],
+        'US' => ['Estados Unidos', 'United States','EEUU','EE.UU','EUA','USA','estadosunidenses'],
         'ES' => ['Espanha', 'Spain', 'España'],
         'DE' => ['Alemanha', 'Germany', 'Alemania'],
         'FR' => ['França', 'France', 'Francia'],
@@ -48,7 +48,7 @@ function appendFlagsFromCountries(string $text){
         'PT' => ['Portugal'],
         'AR' => ['Argentina'],
         'MX' => ['México', 'Mexico'],
-        'IR' => ['Irã', 'Iran', 'Irán'],
+        'IR' => ['Irã', 'Iran', 'Irán','irianian'],
         'IL' => ['Israel'],
         'OM' => ['Omã', 'Oman', 'Omán'],
         'BH' => ['Bahrein', 'Bahrain', 'Baréin'],
@@ -74,7 +74,7 @@ function appendFlagsFromCountries(string $text){
         }
     }
 
-    return $flags ? implode('', $flags) . ' ' . $text : $text;
+    return $flags ? implode('', $flags) . ' ' : false;
 }
 
 function dispatcher($url, $data = '', $method = 'GET', $type = true){
