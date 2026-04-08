@@ -51,6 +51,7 @@ $actionKeywords = [
 ];
 
 $items = [];
+$links = Json::read('links.json');
 
 foreach ($feed as $item) {
 
@@ -65,8 +66,6 @@ foreach ($feed as $item) {
 
     $totalMatches = count($coreMatches) + count($actionMatches);
 
-    $links = Json::read('links.json');
-
     if (count($coreMatches) < 1 || count($actionMatches) < 1 || $totalMatches < 2 || in_array($item['link'],$links)) {
         continue;
     }
@@ -75,10 +74,11 @@ foreach ($feed as $item) {
 
     if (strtotime($item['pubDate']) >= $lapse) {
         $links[] =  (string) $item['link'];
-        Json::write('links.json',$links);
         # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
 	$msg = str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(__DIR__ . '/log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }
 }
+
+Json::write('links.json',$links);
