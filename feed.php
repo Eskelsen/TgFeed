@@ -78,7 +78,15 @@ foreach ($feed as $item) {
     if (strtotime($item['pubDate']) >= $lapse) {
         $links[] =  (string) $item['link'];
         # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
-        $title = $s==2 ? $title : DeepL::translate(DEEPL_KEY,$title);
+        if ($s==2) {
+            if ($translate = DeepL::translate(DEEPL_KEY,$title)) {
+                $chars = Json::read('chars.json');
+                $len = mb_strlen($title);
+                $chars['len'] = empty($chars['len']) ? $len : $len + $chars['len'];
+                Json::write('chars.json',$chars);
+                $title = $translate;
+            }
+        }
         $title = appendFlagsFromCountries($title);
 	    $msg = str_replace(':','-',$feedTitle) . ': ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
