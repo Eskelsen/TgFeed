@@ -27,9 +27,19 @@ $urls[6] = 'https://www.lemonde.fr/en/middle-east/rss_full.xml';
 $urls[7] = 'https://www.theguardian.com/world/rss';
 $urls[8] = 'http://rss.cnn.com/rss/edition_world.rss';
 
-$url = $urls[$s] ?? $urls[1];
+$sources[1] = 'BBC Internacional';
+$sources[2] = 'Folha de São Paulo';
+$sources[3] = 'Deutsch Welle';
+$sources[4] = 'Voz da América';
+$sources[5] = 'Global Voices';
+$sources[6] = 'Le Monde';
+$sources[7] = 'The Guardian';
+$sources[8] = 'CNN';
 
-$log = 'Running source ' . $s . ' with a ' . $feed_lapse . '-second time-lapse';
+$url = $urls[$s] ?? $urls[1];
+$source = $sources[$s] ?? 'Fonte desconhecida';
+
+$log = 'Running source ' . $source . ' with a ' . $feed_lapse . '-second time-lapse';
 
 sleep($s);
 
@@ -89,7 +99,7 @@ foreach ($feed as $item) {
             }
         }
         $flags = appendFlagsFromCountries($title);
-	    $msg = $flags . '<b>'. str_replace(':','-',$feedTitle) . '</b>: ' . $title;
+	    $msg = $flags . '<b>'. $source . '</b>: ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(WEB . 'log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }
