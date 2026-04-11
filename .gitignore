@@ -1,4 +1,5 @@
 env.php
+*.csv
 *.json
 *.log
 *.txt

@@ -1,7 +1,16 @@
 <?php
 
 if (empty($argv[1])) {
-    exit('Nothing to see here.' . PHP_EOL);
+    exit('Nada para ver aqui.' . PHP_EOL);
+}
+
+if (!is_file('sources.csv') OR !is_file('keywords.csv')) {
+    echo 'Voce deve configurar os arquivos de fontes (sources.csv) e palavras-chaves (keywords.csv) de acordo com os arquivos lock' . PHP_EOL;
+    echo 'Para cada fonte, configure um cron' . PHP_EOL;
+    echo 'Exemplo para a fonte 1: * * * * * /usr/bin/php /caminho-para/tg-feed/feed.php 1 > /dev/null 2>&1' . PHP_EOL;
+    echo 'Exemplo para a fonte 2: * * * * * /usr/bin/php /caminho-para/tg-feed/feed.php 2 > /dev/null 2>&1' . PHP_EOL;
+    echo 'E assim por diante' . PHP_EOL;
+    return;
 }
 
 define('WEB', __DIR__ . '/');
@@ -18,28 +27,17 @@ $s = isset($argv[1]) ? $argv[1] : 0;
 
 $feed_lapse = isset($argv[2]) ? $argv[2] : FEED_LAPSE;
 
-$urls[1] = 'https://feeds.bbci.co.uk/news/world/rss.xml';
-$urls[2] = 'https://feeds.folha.uol.com.br/mundo/rss091.xml';
-$urls[3] = 'https://rss.dw.com/rdf/rss-en-all';
-$urls[4] = 'https://www.voanews.com/api/epiqq';
-$urls[5] = 'https://pt.globalvoices.org/feed/';
-$urls[6] = 'https://www.lemonde.fr/en/middle-east/rss_full.xml';
-$urls[7] = 'https://www.theguardian.com/world/rss';
-$urls[8] = 'http://rss.cnn.com/rss/edition_world.rss';
+$sources = getData('sources.csv');
 
-$sources[1] = 'BBC Internacional';
-$sources[2] = 'Folha de São Paulo';
-$sources[3] = 'Deutsch Welle';
-$sources[4] = 'Voz da América';
-$sources[5] = 'Global Voices';
-$sources[6] = 'Le Monde';
-$sources[7] = 'The Guardian';
-$sources[8] = 'CNN';
+$source = $sources[$s] ?? $sources[1];
 
-$url = $urls[$s] ?? $urls[1];
-$source = $sources[$s] ?? 'Fonte desconhecida';
+if (empty($source[1])) {
+    exit('Falha no carregamento da fonte');
+}
 
-$log = 'Running source ' . $source . ' with a ' . $feed_lapse . '-second time-lapse';
+[$label,$url] = $source;
+
+$log = 'Running source ' . $label . ' with a ' . $feed_lapse . '-second time-lapse';
 
 sleep($s);
 
@@ -47,20 +45,7 @@ echo $log . PHP_EOL;
 
 $feed = FeedParser::parse($url);
 
-$keywords = [
-    'iran', 'irã', 'tehran', 'teerã',
-    'irgc', 'revolutionary guard',
-    'israel', 'gaza', 'hamas', 'hezbollah',
-    'usa', 'eua', 'middle east', 'oriente médio',
-    'war', 'guerra', 'conflict', 'conflito',
-    'attack', 'ataque', 'strike',
-    'missile', 'drone', 'rocket',
-    'military', 'militar',
-    'retaliation', 'retaliação',
-    'ceasefire', 'cessar-fogo','agreement','acordo','negociações','negotiation',
-    'nuclear', 'sanctions', 'sanções',
-    'khamenei','ormuz'
-];
+$keywords = getData('keywords.csv');
 
 $items = [];
 $links = Json::read(WEB . 'links.json');
@@ -69,11 +54,7 @@ foreach ($feed as $item) {
 
     $feedTitle = (string) $item['feed'];
     $title = (string) $item['title'];
-    // $description = strip_tags((string) $item['description']);
 
-    // $fullText = $title . ' ' . $description;
-
-    // $matches = findMatches($fullText, $keywords);
     $matches = findMatches($title, $keywords);
 
     if (count($matches) < 2 || in_array($item['link'],$links)) {
@@ -84,7 +65,6 @@ foreach ($feed as $item) {
 
     if (strtotime($item['pubDate']) >= $lapse) {
         $links[] =  (string) $item['link'];
-        # $msg = str_replace(':','-',$feedTitle) . ': ' . $title . "\n\n" . $description . "\n\n" . 'Link: ' . (string) $item['link'];
         if ($s!=2) {
             if ($translate = DeepL::translate(DEEPL_KEY,$title)) {
                 $chars = Json::read(WEB . 'chars.json');
@@ -95,7 +75,7 @@ foreach ($feed as $item) {
             }
         }
         $flags = appendFlagsFromCountries($title);
-	    $msg = $flags . '<b>'. $source . '</b>: ' . $title;
+	    $msg = $flags . '<b>'. $label . '</b>: ' . $title;
         $ok = tgmSendMsg(TG_CHAT, $msg, TG_TOKEN);
         file_put_contents(WEB . 'log.txt',json_encode($ok) . "\n", FILE_APPEND);
     }

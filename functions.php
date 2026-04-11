@@ -114,3 +114,30 @@ function dispatcher($url, $data = '', $method = 'GET', $type = true){
 	
     return $response;
 }
+
+function getData(string $filePath, string $delimiter = ','){
+
+    if (!file_exists($filePath) || !is_readable($filePath)) {
+        return [];
+    }
+
+    if (($handle = fopen($filePath, 'r')) !== false) {
+        $i = 1;
+        while (($data = fgetcsv($handle, 0, $delimiter, '"', '\\')) !== false) {
+            
+            if (empty(array_filter($data))) {
+                continue;
+            }
+
+            if (count($data) === 1) {
+                $result[] = trim($data[0]);
+            } elseif (count($data) >= 2) {
+                $result[$i] = [trim($data[0]), trim($data[1])];
+            }
+            $i++;
+        }
+        fclose($handle);
+    }
+
+    return $result ?? [];
+}
