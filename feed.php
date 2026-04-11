@@ -4,7 +4,10 @@ if (empty($argv[1])) {
     exit('Nada para ver aqui.' . PHP_EOL);
 }
 
-if (!is_file('sources.csv') OR !is_file('keywords.csv')) {
+define('WEB', __DIR__ . '/');
+define('FEED_LAPSE', 60*60*6);
+
+if (!is_file(WEB . 'sources.csv') OR !is_file(WEB . 'keywords.csv')) {
     echo 'Voce deve configurar os arquivos de fontes (sources.csv) e palavras-chaves (keywords.csv) de acordo com os arquivos lock' . PHP_EOL;
     echo 'Para cada fonte, configure um cron' . PHP_EOL;
     echo 'Exemplo para a fonte 1: * * * * * /usr/bin/php /caminho-para/tg-feed/feed.php 1 > /dev/null 2>&1' . PHP_EOL;
@@ -13,21 +16,18 @@ if (!is_file('sources.csv') OR !is_file('keywords.csv')) {
     return;
 }
 
-define('WEB', __DIR__ . '/');
-define('FEED_LAPSE', 60*60*6);
-
-include __DIR__ . '/env.php';
-include __DIR__ . '/config.php';
-include __DIR__ . '/functions.php';
-include __DIR__ . '/FeedParser.php';
-include __DIR__ . '/Json.php';
-include __DIR__ . '/DeepL.php';
+include WEB . 'env.php';
+include WEB . 'config.php';
+include WEB . 'functions.php';
+include WEB . 'FeedParser.php';
+include WEB . 'Json.php';
+include WEB . 'DeepL.php';
 
 $s = isset($argv[1]) ? $argv[1] : 0;
 
 $feed_lapse = isset($argv[2]) ? $argv[2] : FEED_LAPSE;
 
-$sources = getData('sources.csv');
+$sources = getData(WEB . 'sources.csv');
 
 $source = $sources[$s] ?? $sources[1];
 
@@ -45,7 +45,7 @@ echo $log . PHP_EOL;
 
 $feed = FeedParser::parse($url);
 
-$keywords = getData('keywords.csv');
+$keywords = getData(WEB . 'keywords.csv');
 
 $items = [];
 $links = Json::read(WEB . 'links.json');
