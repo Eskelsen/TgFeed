@@ -47,21 +47,19 @@ echo $log . PHP_EOL;
 
 $feed = FeedParser::parse($url);
 
-$coreKeywords = [
+$keywords = [
     'iran', 'irã', 'tehran', 'teerã',
     'irgc', 'revolutionary guard',
     'israel', 'gaza', 'hamas', 'hezbollah',
-    'usa', 'eua', 'middle east', 'oriente médio'
-];
-
-$actionKeywords = [
+    'usa', 'eua', 'middle east', 'oriente médio',
     'war', 'guerra', 'conflict', 'conflito',
     'attack', 'ataque', 'strike',
     'missile', 'drone', 'rocket',
     'military', 'militar',
     'retaliation', 'retaliação',
-    'ceasefire', 'cessar-fogo',
-    'nuclear', 'sanctions', 'sanções'
+    'ceasefire', 'cessar-fogo','agreement','acordo','negociações','negotiation',
+    'nuclear', 'sanctions', 'sanções',
+    'khamenei','ormuz'
 ];
 
 $items = [];
@@ -75,12 +73,9 @@ foreach ($feed as $item) {
 
     $fullText = $title . ' ' . $description;
 
-    $coreMatches = findMatches($fullText, $coreKeywords);
-    $actionMatches = findMatches($fullText, $actionKeywords);
+    $matches = findMatches($fullText, $keywords);
 
-    $totalMatches = count($coreMatches) + count($actionMatches);
-
-    if (count($coreMatches) < 1 || count($actionMatches) < 1 || $totalMatches < 2 || in_array($item['link'],$links)) {
+    if (count($matches) < 2 || in_array($item['link'],$links)) {
         continue;
     }
 
