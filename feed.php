@@ -58,6 +58,7 @@ foreach ($feed as $item) {
     $matches = findMatches($title, $keywords);
 
     if (count($matches) < 2 || in_array($item['link'],$links)) {
+	echo 'Nada para lançar. Matches: ' . count($matches) . ' :: ' . json_encode($matches) .PHP_EOL;
         continue;
     }
 
