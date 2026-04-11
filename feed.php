@@ -71,7 +71,7 @@ foreach ($feed as $item) {
     $title = (string) $item['title'];
     // $description = strip_tags((string) $item['description']);
 
-    $fullText = $title . ' ' . $description;
+    // $fullText = $title . ' ' . $description;
 
     // $matches = findMatches($fullText, $keywords);
     $matches = findMatches($title, $keywords);
