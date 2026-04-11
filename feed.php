@@ -69,11 +69,12 @@ foreach ($feed as $item) {
 
     $feedTitle = (string) $item['feed'];
     $title = (string) $item['title'];
-    $description = strip_tags((string) $item['description']);
+    // $description = strip_tags((string) $item['description']);
 
     $fullText = $title . ' ' . $description;
 
-    $matches = findMatches($fullText, $keywords);
+    // $matches = findMatches($fullText, $keywords);
+    $matches = findMatches($title, $keywords);
 
     if (count($matches) < 2 || in_array($item['link'],$links)) {
         continue;
