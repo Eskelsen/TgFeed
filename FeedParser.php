@@ -4,7 +4,6 @@ class FeedParser
 {
     public static function parse(string $url, ?string $source = null): array
     {
-
         $ch = curl_init($url);
 
         curl_setopt_array($ch, [
@@ -12,29 +11,38 @@ class FeedParser
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_ENCODING => '',
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
+
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
 
             CURLOPT_HTTPHEADER => [
-                'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
                 'Accept: application/rss+xml,application/xml;q=0.9,text/xml;q=0.8,*/*;q=0.7',
                 'Accept-Language: en-US,en;q=0.9',
-                'Connection: keep-alive',
-                'Upgrade-Insecure-Requests: 1',
             ],
         ]);
 
-        $xmlString = curl_exec($ch);
+        $data = curl_exec($ch);
 
-        if ($xmlString === false) {
-            $log_info  = 'Falha ao recuperar o feed para ' . $url;
-            echo $log_info . PHP_EOL;
-            $log_error = 'Detalhes do erro: ' . curl_error($ch);
-            echo $log_error . PHP_EOL;
-            file_put_contents(__DIR__ . '/log.txt', $log_info . "\n" . $log_error . "\n", FILE_APPEND);
+        if ($data === false) {
+            file_put_contents(__DIR__ . '/log.txt','Falha no cURL: ' . $url . "\n" . curl_error($ch) . "\n", FILE_APPEND);
             return [];
         }
 
-        $xml = simplexml_load_string($xmlString, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        if (stripos($data, '<rss') === false && stripos($data, '<feed') === false) {
+            file_put_contents(__DIR__ . '/log.txt', 'Não é um RSS: ' . $url . ' [' . ($info['content_type'] ?? '') . "]\n",FILE_APPEND);
+            return [];
+        }
+
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+        if (!$xml) {
+            file_put_contents(__DIR__ . '/log.txt', 'Falha ao parsear XML: ' . $url . "\n", FILE_APPEND);
+            return [];
+        }
 
         $feedTitle = self::getFeedTitle($xml);
         $sourceName = $source ?? self::detectSource($url, $feedTitle);
@@ -46,9 +54,9 @@ class FeedParser
 
             $title = self::cleanText($item->title ?? '');
             $description = self::cleanText($item->description ?? $item->summary ?? '');
-            $link = (string) ($item->link ?? '');
 
-            if (empty($link) && isset($item->link['href'])) {
+            $link = (string) ($item->link ?? '');
+            if (!$link && isset($item->link['href'])) {
                 $link = (string) $item->link['href'];
             }
 
